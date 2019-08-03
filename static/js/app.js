@@ -28,22 +28,57 @@ function populateDropdowns(key, arr) {
     // reset the dropdown menu, to retain only those selected values
     d3.select(`#${key}`).text("");
 
-    // create an array of values for each key requested
-    let keyTypes = arr.map(ufo => ufo[key]);
+    // if they key is the date...
+    if(`${key}` === 'datetime') {
+        
+        // create an array of values for each key requested
+        let keyTypes = arr.map(ufo => ufo[key]);
 
-    // eliminate duplicates in the array
-    function onlyUnique(value, index, self) { 
-        return self.indexOf(value) === index;
+        // eliminate duplicates in the array
+        function onlyUnique(value, index, self) { 
+            return self.indexOf(value) === index;
+        }
+        let uniqueKeys = keyTypes.filter(onlyUnique); 
+
+        // create a generic default selection option for the dropdown
+        d3.select(`#${key}`)
+            .append("option")
+            .property("value", "selected disabled hidden") 
+            .text("Select Option");
+
+        // loop through array and build html elements to create other dropdown options
+        for (i = 0; i < uniqueKeys.length; i++) {
+            d3.select(`#${key}`)
+            .append("option")
+            .property("value", uniqueKeys[i])
+            .text(uniqueKeys[i]);
+        }
     }
-    let uniqueKeys = keyTypes.filter(onlyUnique); 
+    // otherwise, run same functions, but also alphabetize & uppercase results
+    else {
+        let keyTypes = arr.map(ufo => ufo[key]);
 
-    // loop through array and build html elements needed to create dropdown menu
-    for (i = 0; i < uniqueKeys.length; i++) {
+        function onlyUnique(value, index, self) { 
+            return self.indexOf(value) === index;
+        }
+        let uniqueKeys = keyTypes.filter(onlyUnique); 
+
         d3.select(`#${key}`)
         .append("option")
-        .property("value", uniqueKeys[i])
-        .text(uniqueKeys[i].toUpperCase());
-}
+        .property("value", "selected disabled hidden") 
+        .text("Select Option");
+
+        // alphabetize results
+        let sortedKeys = uniqueKeys.sort();
+
+        for (i = 0; i < sortedKeys.length; i++) {
+            d3.select(`#${key}`)
+            .append("option")
+            .property("value", sortedKeys[i])
+            // make it uppercase for readability
+            .text(sortedKeys[i].toUpperCase());    
+        }
+    }
 }
 
 // ------------------------------------------------------------------
@@ -64,7 +99,7 @@ function tableMaker(selectKey=false, selectedVal=false) {
         // filter data to just those objects with keys that match the input data 
         filteredData = filteredData.filter(ufo => ufo[selectKey] === selectedVal);
     }
-    // otherwise, if no selections have been made, render a table with all of the data
+    // otherwise, if no selections made (default on load), render table with all data
     else {
         filteredData = tableData;
     }
@@ -101,6 +136,8 @@ button.on("click", function() {
 
         // clear any table data previously rendered
         tbody.html("");
+
+        filteredData = tableData;
 
         // loop through the table data
         tableData.forEach(function(ufo) {

@@ -137,6 +137,7 @@ button.on("click", function() {
         // clear any table data previously rendered
         tbody.html("");
 
+        // reset all data to the full table data
         filteredData = tableData;
 
         // loop through the table data

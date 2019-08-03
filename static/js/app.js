@@ -28,7 +28,7 @@ function populateDropdowns(key, arr) {
     // reset the dropdown menu, to retain only those selected values
     d3.select(`#${key}`).text("");
 
-    // if they key is the date...
+    // if the key is the date...
     if(`${key}` === 'datetime') {
         
         // create an array of values for each key requested
